@@ -1,0 +1,33 @@
+{
+  "name": "dev-container-isolation",
+  "build": {
+    "dockerfile": "Containerfile"
+  },
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,relabel=shared",
+  "runArgs": [
+    "--userns=keep-id",
+    "--security-opt=no-new-privileges",
+    "--cap-drop=ALL"
+  ],
+  "overrideCommand": true,
+  "updateRemoteUserUID": false,
+  "remoteUser": "dev",
+  "containerUser": "dev",
+  "mounts": [
+    "type=bind,source=${localEnv:HOME}/.local/share/devcontainers/vscode/projects/dev-container-isolation,target=/home/dev/.vscode-server,relabel=private"
+  ],
+  "containerEnv": {
+    "CARGO_HOME": "/home/dev/.cargo",
+    "RUSTUP_HOME": "/usr/local/rustup"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "tamasfe.even-better-toml",
+        "vadimcn.vscode-lldb"
+      ]
+    }
+  }
+}

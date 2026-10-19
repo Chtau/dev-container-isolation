@@ -1,0 +1,14 @@
+FROM {docker_image}
+
+RUN {build_tools}
+
+{user_permission}
+
+{env_variables}
+
+{directories}
+
+USER {user_name}
+
+WORKDIR /{name}
+CMD ["sleep", "infinity"]

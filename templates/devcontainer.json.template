@@ -1,0 +1,26 @@
+{{
+  "name": "{name}",
+  "build": {{
+    "dockerfile": "Containerfile"
+  }},
+  "workspaceFolder": "/{name}",
+  "workspaceMount": "source=${{localWorkspaceFolder}},target=/{name},type=bind,relabel=shared",
+  "runArgs": [
+    "--userns=keep-id",
+    "--security-opt=no-new-privileges",
+    "--cap-drop=ALL"
+  ],
+  "overrideCommand": true,
+  "updateRemoteUserUID": false,
+  "remoteUser": "{user_name}",
+  "containerUser": "{user_name}",
+  {container_env}
+  "mounts": [
+    "type=bind,source={shared_directory}/{name},target=/home/{user_name}/.vscode-server,relabel=private"
+  ],
+  "customizations": {{
+    "vscode": {{
+      {vscode_properties}
+    }}
+  }}
+}}

@@ -1,0 +1,18 @@
+FROM docker.io/library/rust:1.99.1-bookworm
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates git pkg-config libssl-dev clang lldb \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd --gid 1000 dev && useradd --uid 1000 --gid 1000 --create-home --shell /bin/bash dev
+ENV CARGO_HOME=/home/dev/.cargo RUSTUP_HOME=/usr/local/rustup
+# Reuse the upstream Rust toolchains under /usr/local/rustup, but keep Cargo cache user-owned.
+RUN mkdir -p /home/dev/.cargo /workspace && chown -R dev:dev /home/dev /workspace
+RUN mkdir -p /vscode/vscode-server \
+    && chown -R dev:dev /vscode
+RUN mkdir -p /home/dev/.vscode-server \
+    && chown -R dev:dev /home/dev/.vscode-server
+RUN chown dev:dev /home/dev
+USER dev
+WORKDIR /workspace
+CMD ["sleep", "infinity"]
