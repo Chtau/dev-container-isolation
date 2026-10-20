@@ -163,7 +163,7 @@ impl TemplateEngine {
     && rm -rf /var/lib/apt/lists/*",
             Language::NodeJS => "apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates git python3 make g++ \
-    && rm -rf /var/lib/apt/lists/*",
+    && rm -rf /var/lib/apt/lists/* && npm install --global pnpm@latest-11",
         };
 
         let user_name = match language {
