@@ -15,24 +15,36 @@ struct Args {
     /// Path to the repository where the dev container should be created.
     #[arg(long)]
     target_path: Option<String>,
+    /// Name used for the project.
+    #[arg(long)]
+    project_name: Option<String>,
+    /// Language for the dev container (rust, dotnet, or nodejs).
+    #[arg(long, value_enum)]
+    language: Option<Language>,
+    /// Run in interactive prompt mode.
+    #[arg(default_value = "false", long)]
+    interactive: bool,
     /// Create and Write actions will not be performed.
     #[arg(default_value = "false", long)]
-    try_run: Option<bool>,
+    try_run: bool,
     /// Override existing devcontainer files.
     #[arg(default_value = "false", long)]
-    file_override: Option<bool>,
+    file_override: bool,
     /// Ignore errors on directory creation.
     #[arg(default_value = "false", long)]
-    ignore_directory_creation_error: Option<bool>,
+    ignore_directory_creation_error: bool,
     /// Ignore runtime check error result.
     #[arg(default_value = "false", long)]
-    ignore_runtime_check_error: Option<bool>,
+    ignore_runtime_check_error: bool,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
-    let try_run = args.try_run.or(Some(false)).unwrap();
-    let ignore_runtime_check_error = args.ignore_runtime_check_error.or(Some(false)).unwrap();
+    let interactive_mode = args.interactive;
+    let try_run = args.try_run;
+    let ignore_runtime_check_error = args.ignore_runtime_check_error;
+    let file_override = args.file_override;
+    let ignore_directory_creation_error = args.ignore_directory_creation_error;
 
     runtime_check(try_run, ignore_runtime_check_error)?;
 
@@ -52,36 +64,47 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     println!("{} {}", style("Repo:").blue().bold(), repo_path.display());
 
-    let use_folder_name = Confirm::with_theme(&ColorfulTheme::default())
-        .with_prompt("Use target folder as name")
-        .default(true)
-        .interact()?;
-
-    let dci_name: String = (if !use_folder_name {
-        Input::with_theme(&ColorfulTheme::default())
-            .with_prompt("Name")
-            .allow_empty(false)
-            .interact_text()?
+    let dci_name: String = (if args.project_name.is_some() {
+        args.project_name.unwrap()
     } else {
-        repo_path
-            .file_name()
-            .ok_or(std::io::Error::new(
-                std::io::ErrorKind::InvalidData,
-                "Could not read directory name",
-            ))?
-            .to_string_lossy()
-            .to_string()
-    })
-    .to_lowercase();
+        let use_folder_name = if interactive_mode {
+            Confirm::with_theme(&ColorfulTheme::default())
+                .with_prompt("Use target folder as name")
+                .default(true)
+                .interact()?
+        } else {
+            true
+        };
+
+        if !use_folder_name {
+            Input::with_theme(&ColorfulTheme::default())
+                .with_prompt("Name")
+                .allow_empty(false)
+                .interact_text()?
+        } else {
+            repo_path
+                .file_name()
+                .ok_or(std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    "Could not read directory name",
+                ))?
+                .to_string_lossy()
+                .to_string()
+        }
+    }).to_lowercase();
 
     // Language selection
-    let languages = [Language::Rust, Language::Dotnet, Language::NodeJS];
-    let selection = Select::with_theme(&ColorfulTheme::default())
-        .with_prompt("Choose a language")
-        .items(&languages)
-        .default(0)
-        .interact()?;
-    let lang = languages[selection];
+    let lang = if let Some(language) = args.language {
+        language
+    } else {
+        let languages = [Language::Rust, Language::Dotnet, Language::NodeJS];
+        let selection = Select::with_theme(&ColorfulTheme::default())
+            .with_prompt("Choose a language")
+            .items(&languages)
+            .default(0)
+            .interact()?;
+        languages[selection]
+    };
 
     // File and Directory creation
     let devcontainer_directory = repo_path.join(".devcontainer");
@@ -95,7 +118,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         &container_file,
         &dci_name,
         lang,
-        args.file_override.or(Some(false)).unwrap(),
+        file_override,
     )?;
     if !file_creation_output(create_container, &container_file)? {
         if !try_run {
@@ -122,10 +145,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         &devcontainer_file,
         &dci_name,
         lang,
-        args.file_override.or(Some(false)).unwrap(),
-        args.ignore_directory_creation_error
-            .or(Some(false))
-            .unwrap(),
+        file_override,
+        ignore_directory_creation_error,
     )?;
     if !file_creation_output(create_dev_container, &devcontainer_file)? {
         if !try_run {
@@ -141,9 +162,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     &dci_name,
                     lang,
                     true,
-                    args.ignore_directory_creation_error
-                        .or(Some(false))
-                        .unwrap(),
+                    ignore_directory_creation_error,
                 )?;
                 file_creation_output(create_dev_container_2, &devcontainer_file)?;
             }

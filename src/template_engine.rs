@@ -3,10 +3,13 @@ use std::path::PathBuf;
 use anyhow::Error;
 use console::style;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, clap::ValueEnum)]
 pub(crate) enum Language {
+    #[value(name = "rust")]
     Rust,
+    #[value(name = "dotnet")]
     Dotnet,
+    #[value(name = "nodejs")]
     NodeJS
 }
 
