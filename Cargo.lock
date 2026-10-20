@@ -135,6 +135,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "dev-container-isolation"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "console",
+ "dialoguer",
+ "indicatif",
+]
+
+[[package]]
 name = "dialoguer"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -452,17 +463,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ae137229bcbd6cdf0f7b80a31df61766145077ddf49416a728b02cb3921ff3fc"
 dependencies = [
  "windows-link",
-]
-
-[[package]]
-name = "workspace"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "console",
- "dialoguer",
- "indicatif",
 ]
 
 [[package]]
