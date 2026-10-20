@@ -51,7 +51,8 @@ impl TemplateEngine {
             "HOME"
         };
 
-        let shared_directory_path = "/.local/share/devcontainers/vscode/projects";
+        // to have path join work correct we require to not have a `/` at the start
+        let shared_directory_path = ".local/share/devcontainers/vscode/projects";
 
         let home = std::env::var_os(home_var)
             .ok_or_else(|| anyhow::anyhow!("HOME environment variable is not set"))?;
@@ -114,7 +115,7 @@ impl TemplateEngine {
             include_str!("../templates/devcontainer.json.template"),
             user_name = user_name,
             name = name,
-            shared_directory = format!("${{localEnv:{home_var}}}{shared_directory_path}"),
+            shared_directory = format!("${{localEnv:{home_var}}}/{shared_directory_path}"),
             container_env = container_env,
             vscode_properties = vscode_properties
         );
