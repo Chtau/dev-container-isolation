@@ -34,6 +34,9 @@ The executable is written to `target/release/dev-container-isolation` (`dev-cont
 Run the helper against an existing repository:
 
 ```sh
+# path to the repository can be provided as first argument
+cargo run -- /path/to/repository
+# or as an option
 cargo run -- --target-path /path/to/repository
 ```
 
@@ -42,10 +45,10 @@ If `--target-path` is omitted, the helper uses the current directory.
 Preview the setup without creating files or directories:
 
 ```sh
-cargo run -- --target-path /path/to/repository --try-run true
+cargo run -- --target-path /path/to/repository --try-run
 ```
 
-Use `--file-override true` to replace existing configuration files. Boolean options take an explicit `true` or `false` value. View all options with:
+Use `--file-override` to replace existing configuration files. View all options with:
 
 ```sh
 cargo run -- --help

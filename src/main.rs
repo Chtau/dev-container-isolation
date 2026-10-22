@@ -15,6 +15,9 @@ struct Args {
     /// Path to the repository where the dev container should be created.
     #[arg(long)]
     target_path: Option<String>,
+    /// Repository path (shorthand for --target-path).
+    #[arg(value_name = "TARGET_PATH", index = 1)]
+    target_path_positional: Option<String>,
     /// Name used for the project.
     #[arg(long)]
     project_name: Option<String>,
@@ -48,10 +51,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     runtime_check(try_run, ignore_runtime_check_error)?;
 
-    let repo_path_relative: PathBuf = if let Some(p) = args.target_path {
-        PathBuf::from(p)
-    } else {
-        std::env::current_dir()?
+    let repo_path_relative: PathBuf = match args.target_path.or(args.target_path_positional) {
+        Some(p) => PathBuf::from(p),
+        None => std::env::current_dir()?,
     };
     let repo_path = std::fs::canonicalize(repo_path_relative)?;
 
